@@ -1,0 +1,975 @@
+/* ==================== 완전한 모바일 앱 CSS ==================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    overflow: hidden;
+    position: fixed;
+}
+
+/* ==================== 초기 화면 ==================== */
+
+.intro-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    flex-direction: column;
+}
+
+.intro-screen.active {
+    display: flex;
+}
+
+.intro-content {
+    text-align: center;
+    color: #ffffff;
+}
+
+.intro-content h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.intro-content p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.start-btn {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.5) 0%, rgba(100, 200, 255, 0.5) 100%);
+    border: 2px solid rgba(0, 255, 255, 0.8);
+    color: #00ffff;
+    padding: 15px 50px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.start-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.8) 0%, rgba(100, 200, 255, 0.8) 100%);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    transform: scale(1.05);
+}
+
+/* ==================== 앱 래퍼 ==================== */
+
+.app-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+    overflow: hidden;
+}
+
+/* ==================== 헤더 ==================== */
+
+.header {
+    background: rgba(15, 52, 96, 0.9);
+    border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+    padding: 10px 15px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.money-display {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: rgba(0, 255, 200, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 255, 200, 0.3);
+}
+
+.money-emoji {
+    font-size: 16px;
+}
+
+.money-amount {
+    font-weight: bold;
+    color: #00ffff;
+}
+
+.discovered-count {
+    background: rgba(100, 200, 255, 0.1);
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 1px solid rgba(100, 200, 255, 0.3);
+    font-weight: bold;
+}
+
+.header-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.tab-btn {
+    background: rgba(50, 100, 150, 0.4);
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 12px;
+    font-size: 13px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tab-btn.active {
+    background: rgba(0, 255, 255, 0.3);
+    border-color: rgba(0, 255, 255, 0.8);
+    color: #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+.tab-btn:active {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.6);
+}
+
+/* ==================== 콘텐츠 영역 ==================== */
+
+.content-area {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    padding: 10px;
+    gap: 10px;
+}
+
+.screen-container {
+    position: absolute;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.screen-container.active {
+    position: relative;
+    display: flex;
+    opacity: 1;
+}
+
+.screen-container > h3 {
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* ==================== 합성 화면 레이아웃 ==================== */
+
+.synthesis-layout {
+    display: flex;
+    gap: 10px;
+    height: 100%;
+    flex-wrap: wrap;
+}
+
+.left-panel, .right-panel {
+    flex: 0 1 25%;
+    background: rgba(30, 50, 80, 0.4);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.left-panel h3, .right-panel h3, .center-panel h3 {
+    color: #00ffff;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+.center-panel {
+    flex: 1;
+    background: rgba(30, 50, 80, 0.4);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 250px;
+}
+
+.element-inventory {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.element-slot {
+    background: rgba(50, 100, 150, 0.5);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    text-align: center;
+    draggable: true;
+}
+
+.element-slot:active {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.8);
+    cursor: grabbing;
+}
+
+.element-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-direction: column;
+    width: 100%;
+}
+
+.element-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.element-circle.h {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.element-circle.o {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.element-circle.c {
+    background: linear-gradient(135deg, #645995 0%, #2d2d44 100%);
+}
+
+.element-circle.n {
+    background: linear-gradient(135deg, #3b4c8e 0%, #1e2a5f 100%);
+}
+
+.element-circle.cl {
+    background: linear-gradient(135deg, #90ee90 0%, #228b22 100%);
+}
+
+.element-name {
+    font-size: 11px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.element-count {
+    font-size: 12px;
+    color: #00ffff;
+    font-weight: bold;
+}
+
+.synthesis-container {
+    flex: 0.6;
+    background: rgba(30, 50, 80, 0.6);
+    border: 2px dashed rgba(0, 255, 255, 0.5);
+    border-radius: 8px;
+    padding: 8px;
+    position: relative;
+    display: block;
+    min-height: 100px;
+}
+
+.synthesis-container.dragover {
+    border-color: rgba(255, 0, 255, 0.8);
+    background: rgba(100, 50, 150, 0.3);
+}
+
+.added-element {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    position: absolute;
+    cursor: pointer;
+    transition: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.added-element.hydrogen {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.added-element.oxygen {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.added-element.carbon {
+    background: linear-gradient(135deg, #645995 0%, #2d2d44 100%);
+}
+
+.added-element.nitrogen {
+    background: linear-gradient(135deg, #3b4c8e 0%, #1e2a5f 100%);
+}
+
+.added-element.chlorine {
+    background: linear-gradient(135deg, #90ee90 0%, #228b22 100%);
+}
+
+.preview-area {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.synthesis-preview {
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.synthesis-btn {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.3) 0%, rgba(100, 200, 255, 0.3) 100%);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    color: #00ffff;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.synthesis-btn:active {
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.6) 0%, rgba(100, 200, 255, 0.6) 100%);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+}
+
+.result-display {
+    padding: 8px;
+    background: rgba(30, 30, 60, 0.4);
+    border-radius: 6px;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    font-size: 12px;
+    text-align: center;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.compound-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.compound-item {
+    background: rgba(50, 100, 150, 0.5);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-size: 12px;
+}
+
+.compound-item:active {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.8);
+}
+
+.compound-item-name {
+    font-weight: bold;
+    color: #00ffff;
+    font-size: 12px;
+}
+
+.compound-item-formula {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+}
+
+/* ==================== 상점 화면 ==================== */
+
+.shop-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.shop-card {
+    background: rgba(50, 100, 150, 0.5);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-size: 12px;
+}
+
+.shop-card:active {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.8);
+    transform: scale(0.98);
+}
+
+.shop-card-empty {
+    background: rgba(100, 100, 100, 0.3);
+    border-color: rgba(100, 100, 100, 0.5);
+    opacity: 0.6;
+}
+
+.shop-card-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: #00ffff;
+}
+
+.shop-card-price {
+    font-size: 11px;
+    color: #ffff00;
+    font-weight: bold;
+}
+
+.shop-buy-btn {
+    background: rgba(0, 255, 200, 0.3);
+    border: 1px solid rgba(0, 255, 200, 0.6);
+    color: #00ffff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.shop-buy-btn:active {
+    background: rgba(0, 255, 200, 0.6);
+    box-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+/* ==================== 레시피 화면 ==================== */
+
+.recipe-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.recipe-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.recipe-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 8px;
+}
+
+.recipe-card {
+    background: rgba(50, 100, 150, 0.5);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    position: relative;
+    font-size: 11px;
+}
+
+.recipe-card:active {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: rgba(0, 255, 255, 0.8);
+}
+
+.recipe-card-ready {
+    border-color: rgba(255, 255, 0, 0.7);
+    background: rgba(60, 60, 30, 0.8);
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.4);
+}
+
+.recipe-card-makable {
+    border-color: rgba(144, 238, 144, 0.8);
+    background: rgba(144, 238, 144, 0.2);
+    box-shadow: 0 0 10px rgba(144, 238, 144, 0.4);
+}
+
+.recipe-item-name {
+    font-weight: bold;
+    color: #00ffff;
+    font-size: 12px;
+}
+
+.recipe-compound-name {
+    font-weight: bold;
+    color: #00ffff;
+    font-size: 12px;
+}
+
+.recipe-formula {
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.recipe-condition {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.recipe-components {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.recipe-exclamation {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #ffff00;
+    color: #000000;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+/* ==================== 수집품 화면 ==================== */
+
+.collection-display {
+    flex: 1;
+    position: relative;
+    background: rgba(30, 50, 80, 0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.molecule-display {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.molecule-display:active {
+    cursor: grabbing;
+}
+
+.molecule-display.dragging {
+    cursor: grabbing;
+    z-index: 1000;
+}
+
+.molecule-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.molecule {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    font-weight: bold;
+    font-size: 12px;
+    color: white;
+    text-align: center;
+}
+
+.molecule.water {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.atom {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: white;
+    font-weight: bold;
+}
+
+.atom.oxygen {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.atom.hydrogen {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bond {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.furnace-section {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    flex-shrink: 0;
+}
+
+.furnace {
+    width: 100px;
+    height: 100px;
+    border: 3px solid rgba(255, 0, 0, 0.5);
+    border-radius: 15px;
+    background: rgba(139, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.furnace:active {
+    border-color: rgba(255, 0, 0, 0.8);
+    background: rgba(139, 0, 0, 0.4);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+}
+
+.furnace-icon {
+    font-size: 35px;
+}
+
+.furnace-label {
+    font-size: 11px;
+    color: #ff6666;
+    font-weight: bold;
+}
+
+/* ==================== 모달 팝업 ==================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: rgba(20, 50, 80, 0.95);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 85%;
+    max-height: 80%;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #00ffff;
+    transition: all 0.2s ease;
+}
+
+.modal-close:active {
+    transform: scale(1.2);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ffff;
+    margin-bottom: 8px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.modal-formula {
+    font-size: 14px;
+    color: #ffff00;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.modal-info {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.5;
+}
+
+/* ==================== 애니메이션 ==================== */
+
+@keyframes merge-to-center {
+    0% {
+        transform: translate(var(--x), var(--y)) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(0, 0) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes explosion {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--x), var(--y)) scale(0.3);
+        opacity: 0;
+    }
+}
+
+@keyframes ready-pulse {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(255, 255, 0, 0.6);
+    }
+}
+
+/* ==================== 스크롤바 스타일 ==================== */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(30, 30, 60, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.5);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 255, 0.8);
+}
+
+/* ==================== Landscape 모드 ==================== */
+
+@media (orientation: landscape) {
+    .header {
+        padding: 8px 12px;
+        gap: 6px;
+    }
+
+    .header-top {
+        font-size: 12px;
+    }
+
+    .tab-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .content-area {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .left-panel, .right-panel {
+        flex: 0 1 20%;
+    }
+
+    .center-panel {
+        flex: 1;
+    }
+
+    .synthesis-layout {
+        gap: 8px;
+    }
+}
+
+/* ==================== 매우 작은 화면 (480px 이하) ==================== */
+
+@media (max-width: 480px) {
+    .synthesis-layout {
+        flex-direction: column;
+    }
+
+    .left-panel, .center-panel, .right-panel {
+        flex: 1;
+        min-width: 100%;
+    }
+
+    .element-inventory {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .shop-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .recipe-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .modal-content {
+        max-width: 95%;
+        padding: 15px;
+    }
+}
+
+/* ==================== 매우 큰 화면 (1024px 이상) ==================== */
+
+@media (min-width: 1024px) {
+    .element-inventory {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .shop-board {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .recipe-board {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* ==================== 터치 디바이스 최적화 ==================== */
+
+@media (hover: none) and (pointer: coarse) {
+    .element-slot,
+    .tab-btn,
+    .synthesis-btn,
+    .shop-card,
+    .compound-item,
+    .recipe-card {
+        min-height: 44px;
+    }
+
+    .tab-btn {
+        min-width: 50px;
+    }
+}

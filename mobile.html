@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>원소 합성 - 모바일 앱</title>
+    <link rel="stylesheet" href="mobile-app.css">
+</head>
+<body>
+    <!-- 초기 소개 화면 -->
+    <div id="introScreen" class="intro-screen active">
+        <div class="intro-content">
+            <h1>🧪 원소 합성</h1>
+            <p>원소들을 결합하여 신비한 화학물질을 만들어보세요!</p>
+            <button id="startBtn" class="start-btn">시작하기</button>
+        </div>
+    </div>
+
+    <!-- 메인 앱 컨테이너 -->
+    <div class="app-wrapper">
+        <!-- 상단 헤더 -->
+        <header class="header">
+            <div class="header-top">
+                <div class="money-display">
+                    <span class="money-emoji">💰</span>
+                    <span class="money-amount" id="moneyAmount">0</span>
+                </div>
+                <div class="discovered-count">
+                    <span class="count" id="discoveredCount">0</span>/<span class="total" id="totalCount">0</span>
+                </div>
+            </div>
+            <div class="header-tabs">
+                <button class="tab-btn active" data-tab="synthesis">⚗️ 합성</button>
+                <button class="tab-btn" data-tab="shop">🛍️ 상점</button>
+                <button class="tab-btn" data-tab="recipe">📖 레시피</button>
+                <button class="tab-btn" data-tab="collection">🏛️ 수집</button>
+            </div>
+        </header>
+
+        <!-- 콘텐츠 영역 -->
+        <main class="content-area">
+            <!-- 합성 화면 -->
+            <div id="synthesisScreen" class="screen-container active">
+                <div class="synthesis-layout">
+                    <!-- 왼쪽: 원소 인벤토리 -->
+                    <aside class="left-panel">
+                        <h3>보유한 원소</h3>
+                        <div class="element-inventory" id="elementInventory">
+                            <!-- 원소들이 여기에 추가됨 -->
+                        </div>
+                    </aside>
+
+                    <!-- 중앙: 합성 영역 -->
+                    <section class="center-panel">
+                        <h3>합성 영역</h3>
+                        <div class="synthesis-container" id="synthesisContainer">
+                            <!-- 원소들이 여기에 표시됨 -->
+                        </div>
+                        <div class="preview-area" id="synthesisArea">
+                            <div class="synthesis-preview" id="previewDisplay"></div>
+                            <button id="synthesisBtn" class="synthesis-btn">⚗️ 합성하기</button>
+                        </div>
+                        <div class="result-display" id="resultDisplay">
+                            <!-- 결과가 여기 표시됨 -->
+                        </div>
+                    </section>
+
+                    <!-- 오른쪽: 해금된 화학물질 -->
+                    <aside class="right-panel">
+                        <h3>해금된 물질</h3>
+                        <div class="compound-list" id="compoundList">
+                            <!-- 해금된 화학물질들이 여기에 추가됨 -->
+                        </div>
+                    </aside>
+                </div>
+            </div>
+
+            <!-- 상점 화면 -->
+            <div id="shopScreen" class="screen-container">
+                <h3>🛍️ 원소 판매점</h3>
+                <div class="shop-board" id="shopBoard">
+                    <!-- 상품 카드들이 여기에 추가됨 -->
+                </div>
+            </div>
+
+            <!-- 레시피 화면 -->
+            <div id="recipeScreen" class="screen-container">
+                <h3>📖 합성 레시피</h3>
+                <div class="recipe-board" id="recipeBoard">
+                    <!-- 레시피들이 여기에 추가됨 -->
+                </div>
+            </div>
+
+            <!-- 수집품 화면 -->
+            <div id="collectionScreen" class="screen-container">
+                <h3>🏛️ 나의 화학물질</h3>
+                <div class="collection-display" id="collectionDisplay">
+                    <!-- 분자들이 여기에 표시됨 -->
+                </div>
+                <div class="furnace-section">
+                    <div class="furnace" id="furnace">
+                        <div class="furnace-icon">🔥</div>
+                        <div class="furnace-label">분해로</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 정보 모달 팝업 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-close" id="modalClose">&times;</div>
+            <div class="modal-title" id="modalTitle">물</div>
+            <div class="modal-formula" id="modalFormula">H₂O</div>
+            <div class="modal-info" id="modalInfo">
+                <!-- 정보가 여기에 추가됨 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
