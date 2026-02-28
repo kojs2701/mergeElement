@@ -91,7 +91,8 @@ body::before {
     transition: all 0.3s ease;
     text-shadow: none;
     pointer-events: auto;
-    z-index: 2001;
+    position: relative;
+    z-index: 2501; /* ensure clickable above nearby intro elements */
     box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
 }
 
@@ -118,6 +119,26 @@ body::before {
     pointer-events: auto;
     z-index: 2001;
     box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+}
+
+/* 저장 코드 입력 필드 (인트로 화면) */
+.load-code-input {
+    display: block;
+    margin: 100px auto 0; /* 시작 버튼으로부터 100px 아래 */
+    width: 60%;
+    max-width: 720px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 255, 255, 0.6);
+    background: rgba(0,0,0,0.45);
+    color: #e0f7fa;
+    font-size: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    z-index: 1999; /* start button z-index (2001) 보다 낮게 */
+}
+
+.load-code-input::placeholder {
+    color: rgba(0,255,255,0.6);
 }
 
 .alt-start-btn:hover {
@@ -252,11 +273,32 @@ body::before {
     z-index: 1000;
 }
 
+.tutorial-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffd700;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 1100;
+    transition: background 0.3s;
+}
+
+.tutorial-bar.completed {
+    background: rgba(255, 215, 0, 0.8);
+    color: #000000;
+}
+
 .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
     position: relative;
+    padding-top: 40px; /* 튜토리얼 바 여백 확보 */
 }
 
 /* 상단 헤더 */
@@ -449,6 +491,9 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
 .element-slot {
@@ -745,6 +790,9 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
 .compound-item {
@@ -1015,6 +1063,58 @@ body::before {
     }
 }
 
+/* ==================== 저장 코드 팝업 오버레이 ==================== */
+
+.code-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+}
+
+.code-overlay.active {
+    display: flex;
+}
+
+/* ensure hidden overlays don't block pointer events */
+.code-overlay { pointer-events: none; }
+.code-overlay.active { pointer-events: auto; }
+
+/* intro should accept pointer events */
+.intro-screen, .intro-content { pointer-events: auto; }
+
+.code-popup {
+    background: rgba(20, 20, 40, 0.95);
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    max-width: 80%;
+    word-break: break-word;
+}
+
+.generated-code {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: all;
+    font-size: 18px;
+}
+
+.copy-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
 .modal-close {
     position: absolute;
     top: 15px;
@@ -1088,6 +1188,33 @@ body::before {
 .left-sidebar::-webkit-scrollbar-thumb:hover,
 .right-sidebar::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 255, 255, 0.8);
+}
+
+/* 원소와 화학물질 목록 스크롤바 */
+.element-inventory::-webkit-scrollbar,
+.compound-list::-webkit-scrollbar,
+.recipe-column::-webkit-scrollbar {
+    width: 6px;
+}
+
+.element-inventory::-webkit-scrollbar-track,
+.compound-list::-webkit-scrollbar-track,
+.recipe-column::-webkit-scrollbar-track {
+    background: rgba(0, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+.element-inventory::-webkit-scrollbar-thumb,
+.compound-list::-webkit-scrollbar-thumb,
+.recipe-column::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.4);
+    border-radius: 5px;
+}
+
+.element-inventory::-webkit-scrollbar-thumb:hover,
+.compound-list::-webkit-scrollbar-thumb:hover,
+.recipe-column::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 255, 0.7);
 }
 
 /* 반응형 디자인 */
@@ -1273,6 +1400,8 @@ body::before {
     border-radius: 10px;
     border: 1px solid rgba(0,255,255,0.06);
     min-width: 0;
+    max-height: 500px;
+    overflow-y: auto;
 }
 
 .recipe-column h3 {
@@ -1349,126 +1478,147 @@ body::before {
 .shop-board-container {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     flex: 1;
 }
 
 .shop-board {
     display: flex;
-    gap: 20px;
+    gap: 14px;
     overflow-x: auto;
-    padding: 20px 10px;
-    background: rgba(20, 20, 40, 0.8);
-    border: 2px solid rgba(0, 255, 255, 0.3);
-    border-radius: 15px;
+    padding: 18px 14px;
+    background: linear-gradient(135deg, rgba(20, 30, 60, 0.8) 0%, rgba(30, 20, 50, 0.8) 100%);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    border-radius: 16px;
     flex: 1;
     align-items: flex-start;
-    padding-top: 30px;
     scroll-behavior: smooth;
+    box-shadow: 0 8px 24px rgba(0, 255, 255, 0.1), inset 0 1px 3px rgba(255, 255, 255, 0.05);
 }
 
 .shop-board::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
 }
 
 .shop-board::-webkit-scrollbar-track {
-    background: rgba(0, 255, 255, 0.1);
+    background: rgba(0, 255, 255, 0.08);
     border-radius: 10px;
 }
 
 .shop-board::-webkit-scrollbar-thumb {
-    background: rgba(0, 255, 255, 0.5);
+    background: rgba(0, 255, 255, 0.4);
     border-radius: 10px;
 }
 
 .shop-board::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 255, 255, 0.8);
+    background: rgba(0, 255, 255, 0.7);
 }
 
 .shop-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    min-width: 150px;
-    background: rgba(30, 30, 60, 0.8);
-    border: 2px solid rgba(0, 255, 255, 0.4);
-    border-radius: 12px;
-    padding: 20px;
+    gap: 10px;
+    min-width: 140px;
+    background: linear-gradient(135deg, rgba(30, 60, 100, 0.7) 0%, rgba(50, 40, 80, 0.7) 100%);
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    border-radius: 14px;
+    padding: 16px 12px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.shop-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
 }
 
 .shop-card:hover {
-    border-color: rgba(0, 255, 255, 0.8);
-    background: rgba(50, 50, 100, 0.8);
-    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
-    transform: translateY(-5px);
+    border-color: rgba(0, 255, 255, 0.9);
+    background: linear-gradient(135deg, rgba(50, 80, 130, 0.9) 0%, rgba(70, 50, 100, 0.9) 100%);
+    box-shadow: 0 8px 25px rgba(0, 255, 255, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+    transform: translateY(-4px);
 }
 
 .shop-card .element-circle {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
+    font-size: 30px;
     font-weight: bold;
     color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 .shop-card-name {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: bold;
     color: #00ffff;
     text-align: center;
+    position: relative;
+    z-index: 1;
 }
 
 .shop-card-price {
-    font-size: 16px;
+    font-size: 14px;
     color: #ffff00;
     font-weight: bold;
+    position: relative;
+    z-index: 1;
 }
 
 .shop-buy-btn {
-    background: linear-gradient(135deg, rgba(0, 255, 200, 0.3) 0%, rgba(100, 200, 255, 0.3) 100%);
-    border: 2px solid rgba(0, 255, 255, 0.6);
+    background: linear-gradient(135deg, rgba(0, 200, 150, 0.5) 0%, rgba(80, 150, 200, 0.5) 100%);
+    border: 1.5px solid rgba(0, 255, 200, 0.7);
     color: #00ffff;
-    padding: 10px 25px;
-    border-radius: 20px;
+    padding: 8px 20px;
+    border-radius: 18px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     transition: all 0.3s ease;
-    width: 100%;
+    width: 95%;
+    position: relative;
+    z-index: 1;
 }
 
 .shop-buy-btn:hover {
-    background: linear-gradient(135deg, rgba(0, 255, 200, 0.6) 0%, rgba(100, 200, 255, 0.6) 100%);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
-    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.7) 0%, rgba(100, 200, 255, 0.7) 100%);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+    transform: scale(1.08);
 }
 
 /* 빈 카드 (?) */
 .shop-card-empty {
-    border: 3px dashed rgba(0, 255, 255, 0.3);
-    background: rgba(30, 30, 60, 0.5);
+    border: 2px dashed rgba(0, 255, 255, 0.3);
+    background: rgba(20, 30, 50, 0.4);
 }
 
 .shop-card-empty:hover {
-    border: 3px dashed rgba(0, 255, 255, 0.5);
-    background: rgba(30, 30, 60, 0.5);
+    border: 2px dashed rgba(0, 255, 255, 0.5);
+    background: rgba(20, 30, 50, 0.5);
     transform: none;
 }
 
 .shop-card-empty-content {
-    font-size: 48px;
-    color: rgba(0, 255, 255, 0.5);
+    font-size: 42px;
+    color: rgba(0, 255, 255, 0.4);
     font-weight: bold;
     text-align: center;
-    height: 120px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1476,24 +1626,24 @@ body::before {
 
 /* 스크롤 버튼 */
 .shop-scroll-btn {
-    background: linear-gradient(135deg, rgba(0, 255, 200, 0.4) 0%, rgba(100, 200, 255, 0.4) 100%);
-    border: 2px solid rgba(0, 255, 255, 0.6);
+    background: linear-gradient(135deg, rgba(0, 200, 150, 0.6) 0%, rgba(80, 150, 200, 0.6) 100%);
+    border: 1.5px solid rgba(0, 255, 200, 0.7);
     color: #00ffff;
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.1);
 }
 
 .shop-scroll-btn:hover {
-    background: linear-gradient(135deg, rgba(0, 255, 200, 0.7) 0%, rgba(100, 200, 255, 0.7) 100%);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
-    transform: scale(1.1);
-}
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.8) 0%, rgba(100, 200, 255, 0.8) 100%);
+    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.5);
+    transform: scale(1.12);

@@ -25,6 +25,7 @@ html, body {
     width: 375px;
     height: 812px;
     background: #000000;
+    padding-top: 40px; /* 튜토리얼 바를 위한 여백 */
     border-radius: 50px;
     border: 12px solid #1a1a1a;
     box-shadow: 
@@ -127,12 +128,28 @@ html, body {
     cursor: pointer;
     transition: all 0.3s ease;
     text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    position: relative;
+    z-index: 2501;
 }
 
 .start-btn:hover {
     background: linear-gradient(135deg, rgba(0, 255, 200, 0.8) 0%, rgba(100, 200, 255, 0.8) 100%);
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
     transform: scale(1.05);
+}
+
+/* 저장 코드 입력 필드 (모바일) */
+.load-code-input {
+    display: block;
+    margin: 100px auto 0; /* 시작 버튼으로부터 100px 아래 */
+    width: 90%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,255,255,0.6);
+    background: rgba(0,0,0,0.5);
+    color: #e0f7fa;
+    font-size: 14px;
+    z-index: 1599;
 }
 
 /* ==================== 헤더 ==================== */
@@ -257,6 +274,9 @@ html, body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
+    max-height: 350px;
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
 .element-slot {
@@ -748,6 +768,26 @@ html, body {
     font-size: 40px;
 }
 
+/* 튜토리얼 바 */
+.tutorial-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 8px 0;
+    background: rgba(0,0,0,0.5);
+    color: #ffd700;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    z-index: 1600;
+}
+
+.tutorial-bar.completed {
+    background: rgba(255,215,0,0.8);
+    color: #000;
+}
+
 .furnace-label {
     font-size: 12px;
     color: #ff6666;
@@ -818,6 +858,52 @@ html, body {
 .modal-info {
     font-size: 13px;
     color: rgba(255, 255, 255, 0.9);
+}
+
+/* 저장 코드 팝업 오버레이 */
+
+.code-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+}
+
+.code-overlay.active {
+    display: flex;
+}
+
+.code-popup {
+    background: rgba(20, 20, 40, 0.95);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    max-width: 80%;
+    word-break: break-word;
+}
+
+.generated-code {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: all;
+    font-size: 16px;
+}
+
+.copy-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    opacity: 0.8;
+}
     line-height: 1.6;
 }
 

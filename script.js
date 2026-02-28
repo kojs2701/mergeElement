@@ -136,7 +136,7 @@ class Compound {
     }
 }
 
-// ==================== 게임 상태 ====================
+// ==================== 게임 로직 ====================
 
 class Game {
     constructor() {
@@ -154,10 +154,21 @@ class Game {
         this.defaultPurchasePrice = 5;
         
         // 원소 해금 조건 및 가격 (shop에서 구매 시)
+        // target: 만들어야 할 분자와 그 개수
         this.elementUnlockConditions = {
-            'C': { type: 'compounds', target: 'H₂O', count: 3, price: 10 },
-            'N': { type: 'compounds', target: 'CO₂', count: 5, price: 30 },
-            'Cl': { type: 'compounds', target: 'HNO₃', count: 3, price: 100 }
+            'C': { type: 'compounds', target: 'H₂O', count: 3, price: 25 },
+            'N': { type: 'compounds', target: 'CO₂', count: 5, price: 50 },
+            'Cl': { type: 'compounds', target: 'HCl', count: 3, price: 100 },
+            'Na': { type: 'compounds', target: 'NaCl', count: 2, price: 200 },
+            'K': { type: 'compounds', target: 'KCl', count: 2, price: 300 },
+            'Ca': { type: 'compounds', target: 'CaCO₃', count: 1, price: 500 },
+            'Fe': { type: 'compounds', target: 'Fe₂O₃', count: 1, price: 800 },
+            'Mg': { type: 'compounds', target: 'MgO', count: 2, price: 1200 },
+            'S': { type: 'compounds', target: 'SO₂', count: 3, price: 1500 },
+            'P': { type: 'compounds', target: 'H₂SO₄', count: 1, price: 2000 },
+            'Si': { type: 'compounds', target: 'SiO₂', count: 2, price: 2500 },
+            'Al': { type: 'compounds', target: 'Al₂O₃', count: 1, price: 3000 },
+            'F': { type: 'compounds', target: 'HF', count: 2, price: 4000 }
         };
         
         // 해금 가능한 상태의 원소들 (조건은 만족했지만 아직 클릭 안 함)
@@ -175,6 +186,108 @@ class Game {
         // 합성 진행 중 플래그 (중복 클릭 방지)
         this.isSynthesizing = false;
         
+        // 튜토리얼 상태 초기화
+        this.tutorialActive = true;
+        this.currentTutorialIndex = 0;
+        this.tutorialSteps = [
+            {
+                desc: '1단계: H₂O(물)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('H₂O');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '2단계: CO₂(이산화탄소)를 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('CO₂');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '3단계: NH₃(암모니아)를 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('NH₃');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '4단계: HCl(염화수소)를 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('HCl');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '5단계: NaCl(소금)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('NaCl');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '6단계: H₂SO₄(황산)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('H₂SO₄');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '7단계: H₃PO₄(인산)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('H₃PO₄');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '8단계: Fe₂O₃(산화철)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('Fe₂O₃');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '9단계: CaCO₃(탄산칼슘)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('CaCO₃');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '10단계: SiO₂(이산화규소)를 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('SiO₂');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '11단계: Al₂O₃(산화알루미늄)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('Al₂O₃');
+                    return cmp && cmp.discovered;
+                }
+            },
+            {
+                desc: '12단계: CF₄(테트라플루오로메탄)을 만들라',
+                completed: false,
+                check: () => {
+                    const cmp = this.compounds.get('CF₄');
+                    return cmp && cmp.discovered;
+                }
+            }
+        ];
+        
         this.initializeElements();
         this.initializeCompounds();
         this.setupEventListeners();
@@ -183,6 +296,7 @@ class Game {
         this.setupCollectionListeners();
         this.setupTabListeners();
         this.setupShopListeners();
+        this.setupFeedbackOverlay();
         this.startMoneyGeneration();
         this.render();
     }
@@ -191,37 +305,8 @@ class Game {
      * 초기 화면 리스너 설정
      */
     setupIntroListeners() {
-        const startBtn = document.getElementById('startBtn');
-        const introScreen = document.getElementById('introScreen');
-
-        if (!startBtn) {
-            console.error('❌ startBtn을 찾을 수 없습니다');
-            return;
-        }
-        
-        if (!introScreen) {
-            console.error('❌ introScreen을 찾을 수 없습니다');
-            return;
-        }
-
-        console.log('✓ 초기 화면 리스너 설정 중...');
-        
-        // 방법 1: addEventListener 사용
-        startBtn.addEventListener('click', () => {
-            console.log('✓ 시작하기 버튼 클릭됨 (addEventListener)');
-            introScreen.classList.remove('active');
-            console.log('✓ active 클래스 제거됨' );
-        });
-        
-        // 방법 2: onclick 속성 직접 설정 (혹시 addEventListener가 작동 안 할 수 있으니)
-        startBtn.onclick = function(e) {
-            console.log('✓ 시작하기 버튼 클릭됨 (onclick)');
-            introScreen.classList.remove('active');
-            console.log('✓ active 클래스 제거됨');
-            return false;
-        };
-        
-        console.log('✓ 초기 화면 리스너 설정 완료');
+        // Intro listeners are now handled in initGame() for better simplicity
+        // This method is kept as a placeholder for consistency
     }
 
     /**
@@ -382,6 +467,217 @@ class Game {
     }
 
     /**
+     * ESC 키를 눌렀을 때 저장 코드 오버레이를 토글하고
+     * 코드 클릭 시 복사 기능을 설정합니다.
+     */
+    setupFeedbackOverlay() {
+        const overlay = document.getElementById('codeOverlay');
+        const codeElem = document.getElementById('generatedCode');
+        if (!overlay || !codeElem) {
+            console.warn('피드백 오버레이 요소를 찾을 수 없습니다');
+            return;
+        }
+
+        // ESC 키 이벤트
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (overlay.classList.contains('active')) {
+                    overlay.classList.remove('active');
+                } else {
+                    this.showCodeOverlay();
+                }
+            }
+        });
+
+        // 오버레이 바깥 클릭 시 닫기
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+
+        // 코드 클릭 시 복사
+        codeElem.addEventListener('click', () => {
+            const text = codeElem.textContent;
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = text;
+                codeElem.textContent = original + ' (복사됨)';
+                setTimeout(() => {
+                    codeElem.textContent = original;
+                }, 1000);
+            }).catch((err) => {
+                console.error('복사 실패', err);
+            });
+        });
+    }
+
+    /**
+     * 오버레이를 표시하고 최신 저장 코드를 갱신합니다.
+     */
+    showCodeOverlay() {
+        const overlay = document.getElementById('codeOverlay');
+        const codeElem = document.getElementById('generatedCode');
+        if (!overlay || !codeElem) return;
+        codeElem.textContent = this.generateSaveCode();
+        overlay.classList.add('active');
+    }
+
+    /**
+     * 현재 게임 상태(원소+분자+돈+미션)를 JSON으로 만들고 Base64로 암호화하여 저장 코드를 생성합니다.
+     */
+    generateSaveCode() {
+        const gameState = {
+            elements: {},
+            molecules: this.collectedMolecules,
+            money: this.money,
+            moneyPerSecond: this.moneyPerSecond,
+            tutorial: {
+                currentIndex: this.currentTutorialIndex,
+                steps: this.tutorialSteps.map(step => ({
+                    desc: step.desc,
+                    completed: step.completed
+                }))
+            }
+        };
+        
+        // 원소 상태 저장
+        for (let [sym, elem] of this.elements) {
+            if (!elem) continue;
+            gameState.elements[sym] = {
+                discovered: elem.discovered,
+                count: elem.count
+            };
+        }
+        
+        // JSON으로 변환 후 Base64로 인코딩
+        const jsonString = JSON.stringify(gameState);
+        const encoded = btoa(unescape(encodeURIComponent(jsonString)));
+        
+        // "CHEM-" 프리픽스 추가 (게임 코드임을 나타냄)
+        return 'CHEM-' + encoded;
+    }
+
+    /**
+     * 주어진 저장 코드를 디코딩하고 파싱하여 게임 상태를 복원합니다.
+     */
+    loadFromCode(code) {
+        if (!code || typeof code !== 'string') return;
+        
+        try {
+            // "CHEM-" 프리픽스 제거
+            if (!code.startsWith('CHEM-')) {
+                console.warn('⚠️ 유효하지 않은 코드 형식입니다.');
+                return;
+            }
+            
+            const encoded = code.substring(5); // "CHEM-" 제거
+            const jsonString = decodeURIComponent(escape(atob(encoded)));
+            const gameState = JSON.parse(jsonString);
+            
+            // 원소 상태 복원
+            if (gameState.elements) {
+                for (let sym in gameState.elements) {
+                    const elem = this.elements.get(sym);
+                    if (!elem) continue;
+                    const state = gameState.elements[sym];
+                    elem.discovered = state.discovered;
+                    elem.count = state.count;
+                    
+                    if (elem.discovered) {
+                        this.discoveredElements.add(sym);
+                    } else {
+                        this.discoveredElements.delete(sym);
+                    }
+                }
+            }
+            
+            // 분자 상태 복원
+            if (gameState.molecules && Array.isArray(gameState.molecules)) {
+                this.collectedMolecules = gameState.molecules;
+                // 분자의 discovered 상태도 복원
+                gameState.molecules.forEach(moleculeKey => {
+                    const compound = this.compounds.get(moleculeKey);
+                    if (compound) {
+                        compound.discovered = true;
+                        this.discoveredCompounds.add(moleculeKey);
+                    }
+                });
+            }
+            
+            // 돈 정보 복원
+            if (typeof gameState.money === 'number') {
+                this.money = gameState.money;
+            }
+            if (typeof gameState.moneyPerSecond === 'number') {
+                this.moneyPerSecond = gameState.moneyPerSecond;
+            }
+            
+            // 미션 정보 복원
+            if (gameState.tutorial) {
+                if (typeof gameState.tutorial.currentIndex === 'number') {
+                    this.currentTutorialIndex = gameState.tutorial.currentIndex;
+                }
+                if (Array.isArray(gameState.tutorial.steps)) {
+                    this.tutorialSteps.forEach((step, index) => {
+                        if (gameState.tutorial.steps[index]) {
+                            step.completed = gameState.tutorial.steps[index].completed;
+                        }
+                    });
+                }
+            }
+            
+            console.log('✓ 저장 코드 복원 완료 (원소 + 분자 + 돈 + 미션)');
+            this.render();
+        } catch (err) {
+            console.error('❌ 저장 코드 복원 중 오류:', err);
+            alert('저장 코드가 손상되었거나 유효하지 않습니다.');
+        }
+    }
+
+    /**
+     * 튜토리얼 바를 업데이트하여 현재 미션을 보여줍니다.
+     */
+    renderTutorialBar() {
+        const bar = document.getElementById('tutorialBar');
+        if (!bar) return;
+        if (!this.tutorialActive || this.currentTutorialIndex >= this.tutorialSteps.length) {
+            bar.textContent = '';
+            bar.className = 'tutorial-bar';
+            bar.onclick = null;
+            return;
+        }
+        const step = this.tutorialSteps[this.currentTutorialIndex];
+        bar.textContent = step.desc;
+        bar.className = 'tutorial-bar' + (step.completed ? ' completed' : '');
+        if (step.completed) {
+            bar.style.cursor = 'pointer';
+            bar.onclick = () => {
+                if (step.completed) {
+                    this.currentTutorialIndex++;
+                    this.renderTutorialBar();
+                }
+            };
+        } else {
+            bar.style.cursor = 'default';
+            bar.onclick = null;
+        }
+    }
+
+    /**
+     * 튜토리얼 상태를 체크하여 미션이 완료되었는지 확인합니다.
+     */
+    updateTutorial() {
+        if (!this.tutorialActive) return;
+        if (this.currentTutorialIndex >= this.tutorialSteps.length) return;
+        const step = this.tutorialSteps[this.currentTutorialIndex];
+        if (!step.completed && step.check()) {
+            step.completed = true;
+            this.renderTutorialBar();
+        }
+    }
+
+    /**
      * 매초 돈 벌기
      */
     startMoneyGeneration() {
@@ -436,94 +732,302 @@ class Game {
         this.elements.set('O', oxygen);
         this.discoveredElements.add('O');
         
-        // 탄소 (C) - 미발견 상태 (물 3개 시 해금)
+        // 탄소 (C)
         const carbon = new Element('탄소', 'C', 'linear-gradient(135deg, #645995 0%, #2d2d44 100%)');
         carbon.discovered = false;
         carbon.count = 0;
-        // 가격 인상 (5~10배): 탄소 5배
-        carbon.purchasePrice = this.defaultPurchasePrice * 5;
+        carbon.purchasePrice = 25;
         this.elements.set('C', carbon);
-        
-        // 질소 (N) - 미발견 상태 (물 5개 시 해금)
+
+        // 질소 (N)
         const nitrogen = new Element('질소', 'N', 'linear-gradient(135deg, #3b4c8e 0%, #1e2a5f 100%)');
         nitrogen.discovered = false;
         nitrogen.count = 0;
-        // 질소 10배
-        nitrogen.purchasePrice = this.defaultPurchasePrice * 10;
+        nitrogen.purchasePrice = 50;
         this.elements.set('N', nitrogen);
-        
-        // 염소 (Cl) - 미발견 상태 (물 7개 시 해금)
+
+        // 염소 (Cl)
         const chlorine = new Element('염소', 'Cl', 'linear-gradient(135deg, #90ee90 0%, #228b22 100%)');
         chlorine.discovered = false;
         chlorine.count = 0;
-        // 염소 7배
-        chlorine.purchasePrice = this.defaultPurchasePrice * 7;
+        chlorine.purchasePrice = 100;
         this.elements.set('Cl', chlorine);
+
+        // 나트륨 (Na)
+        const sodium = new Element('나트륨', 'Na', 'linear-gradient(135deg, #ffd166 0%, #ff9f1c 100%)');
+        sodium.discovered = false;
+        sodium.count = 0;
+        sodium.purchasePrice = 200;
+        this.elements.set('Na', sodium);
+
+        // 칼륨 (K)
+        const potassium = new Element('칼륨', 'K', 'linear-gradient(135deg, #ffd6a5 0%, #ffb4a2 100%)');
+        potassium.discovered = false;
+        potassium.count = 0;
+        potassium.purchasePrice = 300;
+        this.elements.set('K', potassium);
+
+        // 칼슘 (Ca)
+        const calcium = new Element('칼슘', 'Ca', 'linear-gradient(135deg, #a3d9ff 0%, #7fbfff 100%)');
+        calcium.discovered = false;
+        calcium.count = 0;
+        calcium.purchasePrice = 500;
+        this.elements.set('Ca', calcium);
+
+        // 철 (Fe)
+        const iron = new Element('철', 'Fe', 'linear-gradient(135deg, #b0b0b0 0%, #6e6e6e 100%)');
+        iron.discovered = false;
+        iron.count = 0;
+        iron.purchasePrice = 800;
+        this.elements.set('Fe', iron);
+
+        // 마그네슘 (Mg)
+        const magnesium = new Element('마그네슘', 'Mg', 'linear-gradient(135deg, #cfeaff 0%, #9fd3ff 100%)');
+        magnesium.discovered = false;
+        magnesium.count = 0;
+        magnesium.purchasePrice = 1200;
+        this.elements.set('Mg', magnesium);
+
+        // 황 (S)
+        const sulfur = new Element('황', 'S', 'linear-gradient(135deg, #fff59d 0%, #ffd54f 100%)');
+        sulfur.discovered = false;
+        sulfur.count = 0;
+        sulfur.purchasePrice = 1500;
+        this.elements.set('S', sulfur);
+
+        // 인 (P)
+        const phosphorus = new Element('인', 'P', 'linear-gradient(135deg, #ffecb3 0%, #ffd54f 100%)');
+        phosphorus.discovered = false;
+        phosphorus.count = 0;
+        phosphorus.purchasePrice = 2000;
+        this.elements.set('P', phosphorus);
+
+        // 규소 (Si)
+        const silicon = new Element('규소', 'Si', 'linear-gradient(135deg, #d1c4e9 0%, #b39ddb 100%)');
+        silicon.discovered = false;
+        silicon.count = 0;
+        silicon.purchasePrice = 2500;
+        this.elements.set('Si', silicon);
+
+        // 알루미늄 (Al)
+        const aluminum = new Element('알루미늄', 'Al', 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)');
+        aluminum.discovered = false;
+        aluminum.count = 0;
+        aluminum.purchasePrice = 3000;
+        this.elements.set('Al', aluminum);
+
+        // 플루오린 (F)
+        const fluorine = new Element('플루오린', 'F', 'linear-gradient(135deg, #b2ebf2 0%, #80deea 100%)');
+        fluorine.discovered = false;
+        fluorine.count = 0;
+        fluorine.purchasePrice = 4000;
+        this.elements.set('F', fluorine);
     }
 
     /**
      * 화학물질 초기화
      */
     initializeCompounds() {
-        // 물 (H₂O) - 기본
-        const water = new Compound(
-            '물',
-            'H₂O',
-            { H: 2, O: 1 },
-            '물은 생명의 근원입니다. 산소와 수소가 결합하여 만들어지는 화학물질입니다. 무색, 무취, 무미의 액체이며, 지구상의 모든 생명체에 필수적입니다.',
-            1
-        );
+        // 기본 분자들 및 확장된 분자 목록 (사용자 제공 데이터 반영)
+        const h2 = new Compound('수소 분자', 'H₂', { H: 2 }, '수소 분자입니다.', 1);
+        this.compounds.set('H₂', h2);
+
+        const o2 = new Compound('산소 분자', 'O₂', { O: 2 }, '산소 분자입니다.', 1);
+        this.compounds.set('O₂', o2);
+
+        const water = new Compound('물', 'H₂O', { H: 2, O: 1 }, '물은 생명의 근원입니다.', 1);
         this.compounds.set('H₂O', water);
 
-        // 이산화탄소 (CO₂) - 난이도: 쉬움
-        const carbon_dioxide = new Compound(
-            '이산화탄소',
-            'CO₂',
-            { C: 1, O: 2 },
-            '이산화탄소는 무색, 무취의 기체입니다. 지구 대기의 일부이지만, 대량으로는 온난화를 유발합니다. 탄산음료와 드라이아이스의 주성분입니다.',
-            2
-        );
-        this.compounds.set('CO₂', carbon_dioxide);
+        const h2o2 = new Compound('과산화수소', 'H₂O₂', { H: 2, O: 2 }, '과산화수소입니다.', 2);
+        this.compounds.set('H₂O₂', h2o2);
 
-        // 암모니아 (NH₃) - 난이도: 중간
-        const ammonia = new Compound(
-            '암모니아',
-            'NH₃',
-            { N: 1, H: 3 },
-            '암모니아는 무색 기체로 강한 자극 냄새를 가지고 있습니다. 비료 제조에 가장 많이 사용되며, 냉각제로도 활용됩니다.',
-            5
-        );
-        this.compounds.set('NH₃', ammonia);
+        const co2 = new Compound('이산화탄소', 'CO₂', { C: 1, O: 2 }, '이산화탄소입니다.', 3);
+        this.compounds.set('CO₂', co2);
 
-        // 과산화수소 (H₂O₂) - 난이도: 쉬움
-        const hydrogen_peroxide = new Compound(
-            '과산화수소',
-            'H₂O₂',
-            { H: 2, O: 2 },
-            '과산화수소는 물처럼 보이는 액체이지만 강한 산화제입니다. 살균, 표백제로 널리 사용되며, 앞으로는 로켓 연료로도 활용될 예정입니다.',
-            3
-        );
-        this.compounds.set('H₂O₂', hydrogen_peroxide);
+        const ch4 = new Compound('메탄', 'CH₄', { C: 1, H: 4 }, '메탄입니다.', 2);
+        this.compounds.set('CH₄', ch4);
 
-        // 이산화질소 (NO₂) - 난이도: 어려움
-        const nitrogen_dioxide = new Compound(
-            '이산화질소',
-            'NO₂',
-            { N: 1, O: 2 },
-            '이산화질소는 주황색-갈색 기체로 맵고 자극적인 냄새가 있습니다. 자동차 배기가스와 산업 배출물의 주요 오염 물질입니다.',
-            12
-        );
-        this.compounds.set('NO₂', nitrogen_dioxide);
+        const c2h6 = new Compound('에탄', 'C₂H₆', { C: 2, H: 6 }, '에탄입니다.', 4);
+        this.compounds.set('C₂H₆', c2h6);
 
-        // 질산 (HNO₃) - 난이도: 매우 어려움
-        const nitric_acid = new Compound(
-            '질산',
-            'HNO₃',
-            { H: 1, N: 1, O: 3 },
-            '질산은 강산으로 매우 부식성이 강합니다. 비료 제조, 폭발물 제조, 금속 식각에 널리 사용되는 중요한 산업용 화학물질입니다.',
-            18
-        );
-        this.compounds.set('HNO₃', nitric_acid);
+        const c3h8 = new Compound('프로판', 'C₃H₈', { C: 3, H: 8 }, '프로판입니다.', 5);
+        this.compounds.set('C₃H₈', c3h8);
+
+        const c4h10 = new Compound('부탄', 'C₄H₁₀', { C: 4, H: 10 }, '부탄입니다.', 6);
+        this.compounds.set('C₄H₁₀', c4h10);
+
+        const c2o2 = new Compound('이산화탄소 변형', 'C₂O₂', { C: 2, O: 2 }, 'C₂O₂ 변형입니다.', 4);
+        this.compounds.set('C₂O₂', c2o2);
+
+        const c2n2 = new Compound('시안', 'C₂N₂', { C: 2, N: 2 }, '시안 계열입니다.', 5);
+        this.compounds.set('C₂N₂', c2n2);
+
+        const hcn = new Compound('청산', 'HCN', { H: 1, C: 1, N: 1 }, '청산입니다.', 6);
+        this.compounds.set('HCN', hcn);
+
+        const c2h4 = new Compound('에틸렌', 'C₂H₄', { C: 2, H: 4 }, '에틸렌입니다.', 4);
+        this.compounds.set('C₂H₄', c2h4);
+
+        // 질소 관련
+        const n2 = new Compound('질소 분자', 'N₂', { N: 2 }, '질소 분자입니다.', 1);
+        this.compounds.set('N₂', n2);
+
+        const nh3 = new Compound('암모니아', 'NH₃', { N: 1, H: 3 }, '암모니아입니다.', 3);
+        this.compounds.set('NH₃', nh3);
+
+        const no = new Compound('일산화질소', 'NO', { N: 1, O: 1 }, '일산화질소입니다.', 2);
+        this.compounds.set('NO', no);
+
+        const no2 = new Compound('이산화질소', 'NO₂', { N: 1, O: 2 }, '이산화질소입니다.', 3);
+        this.compounds.set('NO₂', no2);
+
+        const n2o = new Compound('아산화질소', 'N₂O', { N: 2, O: 1 }, '아산화질소입니다.', 4);
+        this.compounds.set('N₂O', n2o);
+
+        const hno3 = new Compound('질산', 'HNO₃', { H: 1, N: 1, O: 3 }, '질산입니다.', 8);
+        this.compounds.set('HNO₃', hno3);
+
+        // 염소 관련
+        const cl2 = new Compound('염소 분자', 'Cl₂', { Cl: 2 }, '염소 분자입니다.', 2);
+        this.compounds.set('Cl₂', cl2);
+
+        const hcl = new Compound('염화수소', 'HCl', { H: 1, Cl: 1 }, '염화수소입니다.', 4);
+        this.compounds.set('HCl', hcl);
+
+        // 나트륨/칼륨 관련
+        const na2 = new Compound('나트륨 분자', 'Na₂', { Na: 2 }, '나트륨 분자입니다.', 2);
+        this.compounds.set('Na₂', na2);
+
+        const k2 = new Compound('칼륨 분자', 'K₂', { K: 2 }, '칼륨 분자입니다.', 2);
+        this.compounds.set('K₂', k2);
+
+        const nacl = new Compound('소금', 'NaCl', { Na: 1, Cl: 1 }, '식용 소금입니다.', 10);
+        this.compounds.set('NaCl', nacl);
+
+        const kcl = new Compound('염화칼륨', 'KCl', { K: 1, Cl: 1 }, '염화칼륨입니다.', 11);
+        this.compounds.set('KCl', kcl);
+
+        const naoh = new Compound('수산화나트륨', 'NaOH', { Na: 1, O: 1, H: 1 }, '수산화나트륨입니다.', 8);
+        this.compounds.set('NaOH', naoh);
+
+        const koh = new Compound('수산화칼륨', 'KOH', { K: 1, O: 1, H: 1 }, '수산화칼륨입니다.', 8);
+        this.compounds.set('KOH', koh);
+
+        const na2co3 = new Compound('탄산나트륨', 'Na₂CO₃', { Na: 2, C: 1, O: 3 }, '탄산나트륨입니다.', 12);
+        this.compounds.set('Na₂CO₃', na2co3);
+
+        const k2co3 = new Compound('탄산칼륨', 'K₂CO₃', { K: 2, C: 1, O: 3 }, '탄산칼륨입니다.', 12);
+        this.compounds.set('K₂CO₃', k2co3);
+
+        // 칼슘 관련
+        const ca2 = new Compound('칼슘 분자', 'Ca₂', { Ca: 2 }, '칼슘 분자입니다.', 3);
+        this.compounds.set('Ca₂', ca2);
+
+        const caco3 = new Compound('탄산칼슘', 'CaCO₃', { Ca: 1, C: 1, O: 3 }, '탄산칼슘입니다.', 20);
+        this.compounds.set('CaCO₃', caco3);
+
+        const cahyd = new Compound('수산화칼슘', 'Ca(OH)₂', { Ca: 1, O: 2, H: 2 }, '수산화칼슘입니다.', 14);
+        this.compounds.set('Ca(OH)₂', cahyd);
+
+        const caso4 = new Compound('황산칼슘', 'CaSO₄', { Ca: 1, S: 1, O: 4 }, '황산칼슘입니다.', 18);
+        this.compounds.set('CaSO₄', caso4);
+
+        const caf2 = new Compound('불화칼슘', 'CaF₂', { Ca: 1, F: 2 }, '불화칼슘입니다.', 17);
+        this.compounds.set('CaF₂', caf2);
+
+        // 철 관련
+        const fe2 = new Compound('철 분자', 'Fe₂', { Fe: 2 }, '철 분자입니다.', 4);
+        this.compounds.set('Fe₂', fe2);
+
+        const fe2o3 = new Compound('산화철', 'Fe₂O₃', { Fe: 2, O: 3 }, '산화철입니다.', 24);
+        this.compounds.set('Fe₂O₃', fe2o3);
+
+        const fes = new Compound('황화철', 'FeS', { Fe: 1, S: 1 }, '황화철입니다.', 20);
+        this.compounds.set('FeS', fes);
+
+        const fecl3 = new Compound('염화철(III)', 'FeCl₃', { Fe: 1, Cl: 3 }, '염화철(III)입니다.', 14);
+        this.compounds.set('FeCl₃', fecl3);
+
+        const fef3 = new Compound('불화철(III)', 'FeF₃', { Fe: 1, F: 3 }, '불화철(III)입니다.', 22);
+        this.compounds.set('FeF₃', fef3);
+
+        // 마그네슘 관련
+        const mg2 = new Compound('마그네슘 분자', 'Mg₂', { Mg: 2 }, '마그네슘 분자입니다.', 4);
+        this.compounds.set('Mg₂', mg2);
+
+        const mgo = new Compound('산화마그네슘', 'MgO', { Mg: 1, O: 1 }, '산화마그네슘입니다.', 18);
+        this.compounds.set('MgO', mgo);
+
+        const mgcl2 = new Compound('염화마그네슘', 'MgCl₂', { Mg: 1, Cl: 2 }, '염화마그네슘입니다.', 13);
+        this.compounds.set('MgCl₂', mgcl2);
+
+        // 황 관련
+        const s8 = new Compound('황 분자', 'S₈', { S: 8 }, '황 분자입니다.', 5);
+        this.compounds.set('S₈', s8);
+
+        const so2 = new Compound('아황산가스', 'SO₂', { S: 1, O: 2 }, '아황산가스입니다.', 16);
+        this.compounds.set('SO₂', so2);
+
+        const so3 = new Compound('삼산화황', 'SO₃', { S: 1, O: 3 }, '삼산화황입니다.', 18);
+        this.compounds.set('SO₃', so3);
+
+        const h2so4 = new Compound('황산', 'H₂SO₄', { H: 2, S: 1, O: 4 }, '황산입니다.', 40);
+        this.compounds.set('H₂SO₄', h2so4);
+
+        const h2s = new Compound('황화수소', 'H₂S', { H: 2, S: 1 }, '황화수소입니다.', 14);
+        this.compounds.set('H₂S', h2s);
+
+        // 인 관련
+        const p4 = new Compound('인 분자', 'P₄', { P: 4 }, '인 분자입니다.', 6);
+        this.compounds.set('P₄', p4);
+
+        const ph3 = new Compound('포스핀', 'PH₃', { P: 1, H: 3 }, '포스핀입니다.', 20);
+        this.compounds.set('PH₃', ph3);
+
+        const p2o5 = new Compound('오산화인', 'P₂O₅', { P: 2, O: 5 }, '오산화인입니다.', 24);
+        this.compounds.set('P₂O₅', p2o5);
+
+        const h3po4 = new Compound('인산', 'H₃PO₄', { H: 3, P: 1, O: 4 }, '인산입니다.', 50);
+        this.compounds.set('H₃PO₄', h3po4);
+
+        // 규소 관련
+        const si2 = new Compound('규소 분자', 'Si₂', { Si: 2 }, '규소 분자입니다.', 7);
+        this.compounds.set('Si₂', si2);
+
+        const sio2 = new Compound('이산화규소', 'SiO₂', { Si: 1, O: 2 }, '이산화규소입니다.', 30);
+        this.compounds.set('SiO₂', sio2);
+
+        const sih4 = new Compound('실란', 'SiH₄', { Si: 1, H: 4 }, '실란입니다.', 24);
+        this.compounds.set('SiH₄', sih4);
+
+        // 알루미늄 관련
+        const al2 = new Compound('알루미늄 분자', 'Al₂', { Al: 2 }, '알루미늄 분자입니다.', 8);
+        this.compounds.set('Al₂', al2);
+
+        const al2o3 = new Compound('산화알루미늄', 'Al₂O₃', { Al: 2, O: 3 }, '산화알루미늄입니다.', 36);
+        this.compounds.set('Al₂O₃', al2o3);
+
+        const alcl3 = new Compound('염화알루미늄', 'AlCl₃', { Al: 1, Cl: 3 }, '염화알루미늄입니다.', 15);
+        this.compounds.set('AlCl₃', alcl3);
+
+        const alf3 = new Compound('불화알루미늄', 'AlF₃', { Al: 1, F: 3 }, '불화알루미늄입니다.', 26);
+        this.compounds.set('AlF₃', alf3);
+
+        // 플루오린 관련
+        const f2 = new Compound('플루오린 분자', 'F₂', { F: 2 }, '플루오린 분자입니다.', 10);
+        this.compounds.set('F₂', f2);
+
+        const hf = new Compound('불화수소', 'HF', { H: 1, F: 1 }, '불화수소입니다.', 30);
+        this.compounds.set('HF', hf);
+
+        const cf4 = new Compound('테트라플루오로메탄', 'CF₄', { C: 1, F: 4 }, '테트라플루오로메탄입니다.', 40);
+        this.compounds.set('CF₄', cf4);
+
+        const naf = new Compound('불화나트륨', 'NaF', { Na: 1, F: 1 }, '불화나트륨입니다.', 14);
+        this.compounds.set('NaF', naf);
+
+        const kf = new Compound('불화칼륨', 'KF', { K: 1, F: 1 }, '불화칼륨입니다.', 14);
+        this.compounds.set('KF', kf);
     }
 
     /**
@@ -915,9 +1419,13 @@ class Game {
             }, 500);
         }
 
-        // 초기화 (2초 후)
+        // ★ 핵심 수정: 합성이 완료되면 즉시 합성소를 완전히 비움
+        this.addedElements = [];
+        this.render();
+        
+        // 2초 후 결과 메시지만 지움
         setTimeout(() => {
-            this.resetSynthesis();
+            resultDisplay.innerHTML = '';
         }, 2000);
     }
     
@@ -1006,6 +1514,9 @@ class Game {
      * UI 렌더링
      */
     render() {
+        // 튜토리얼 진행 상태 먼저 갱신
+        this.updateTutorial();
+        this.renderTutorialBar();
         // 해금한 원소 개수 업데이트
         document.getElementById('discoveredCount').textContent = this.discoveredElements.size;
         document.getElementById('totalCount').textContent = this.elements.size;
@@ -1508,24 +2019,38 @@ class Game {
 
 // ==================== 게임 시작 ====================
 
-// DOM이 이미 준비되었을 수 있으므로 즉시 초기화 시도
+// DOM이 준비되면 게임 시작 리스너 설정
 function initGame() {
-    console.log('=== 게임 초기화 시작 ===');
-    console.log('DOM readyState:', document.readyState);
-    
-    // startBtn 존재 여부 확인
     const startBtn = document.getElementById('startBtn');
-    console.log('startBtn 요소:', startBtn);
+    const introScreen = document.getElementById('introScreen');
+    const loadInput = document.getElementById('loadCodeInput');
     
     if (!startBtn) {
-        console.error('❌ startBtn을 찾을 수 없습니다!');
+        console.error('startBtn을 찾을 수 없습니다');
         return;
     }
     
-    console.log('✓ startBtn 발견됨. 게임 시작합니다.');
-    window.game = new Game();
-    console.log('게임이 시작되었습니다!');
-    console.log('H 2개, O 1개로 물(H2O)을 만들어보세요!');
+    // 간단한 시작 버튼 클릭 핸들러
+    startBtn.addEventListener('click', () => {
+        // 게임 인스턴스 생성
+        window.game = new Game();
+        
+        // 저장 코드가 있으면 로드
+        if (loadInput && loadInput.value) {
+            try {
+                window.game.loadFromCode(loadInput.value.trim());
+            } catch (err) {
+                console.warn('저장 코드 로드 실패:', err);
+            }
+        }
+        
+        // 인트로 화면 숨기기
+        if (introScreen) {
+            introScreen.classList.remove('active');
+        }
+        
+        console.log('게임 시작됨');
+    });
 }
 
 if (document.readyState === 'loading') {
@@ -1536,4 +2061,3 @@ if (document.readyState === 'loading') {
     // DOM이 이미 준비됨
     initGame();
 }
-
