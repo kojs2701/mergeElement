@@ -155,20 +155,26 @@ class Game {
         
         // 원소 해금 조건 및 가격 (shop에서 구매 시)
         // target: 만들어야 할 분자와 그 개수
+        // unlock requirements are defined in a chain where each new element is
+        // conditioned on making a compound that does *not* contain that element.
+        // previously several entries referenced compounds containing the element
+        // itself (e.g. Cl -> HCl), which made the condition impossible to satisfy.
+        // the updated sequence uses earlier compounds in progression so unlocking
+        // is always achievable once the prior elements have been discovered.
         this.elementUnlockConditions = {
-            'C': { type: 'compounds', target: 'H₂O', count: 3, price: 25 },
-            'N': { type: 'compounds', target: 'CO₂', count: 5, price: 50 },
-            'Cl': { type: 'compounds', target: 'HCl', count: 3, price: 100 },
-            'Na': { type: 'compounds', target: 'NaCl', count: 2, price: 200 },
-            'K': { type: 'compounds', target: 'KCl', count: 2, price: 300 },
-            'Ca': { type: 'compounds', target: 'CaCO₃', count: 1, price: 500 },
-            'Fe': { type: 'compounds', target: 'Fe₂O₃', count: 1, price: 800 },
-            'Mg': { type: 'compounds', target: 'MgO', count: 2, price: 1200 },
-            'S': { type: 'compounds', target: 'SO₂', count: 3, price: 1500 },
-            'P': { type: 'compounds', target: 'H₂SO₄', count: 1, price: 2000 },
-            'Si': { type: 'compounds', target: 'SiO₂', count: 2, price: 2500 },
-            'Al': { type: 'compounds', target: 'Al₂O₃', count: 1, price: 3000 },
-            'F': { type: 'compounds', target: 'HF', count: 2, price: 4000 }
+            'C':  { type: 'compounds', target: 'H₂O',   count: 3, price: 25  }, // water makes carbon available
+            'N':  { type: 'compounds', target: 'CO₂',   count: 5, price: 50  }, // after carbon
+            'Cl': { type: 'compounds', target: 'NH₃',   count: 3, price: 100 }, // use ammonia (no Cl)
+            'Na': { type: 'compounds', target: 'HCl',   count: 2, price: 200 }, // HCl uses only H and Cl
+            'K':  { type: 'compounds', target: 'NaCl',  count: 2, price: 300 }, // sodium & chlorine available
+            'Ca': { type: 'compounds', target: 'KCl',   count: 2, price: 500 }, // potassium chloride
+            'Fe': { type: 'compounds', target: 'CaCO₃', count: 1, price: 800 }, // requires previously unlocked Ca
+            'Mg': { type: 'compounds', target: 'Fe₂O₃', count: 1, price: 1200}, // after iron
+            'S':  { type: 'compounds', target: 'MgO',   count: 2, price: 1500}, // magnesium oxide
+            'P':  { type: 'compounds', target: 'H₂SO₄', count: 1, price: 2000}, // already safe
+            'Si': { type: 'compounds', target: 'H₃PO₄', count: 2, price: 2500}, // use phosphoric acid
+            'Al': { type: 'compounds', target: 'SiO₂',  count: 1, price: 3000}, // after silicon
+            'F':  { type: 'compounds', target: 'Al₂O₃', count: 1, price: 4000}  // aluminum oxide
         };
         
         // 해금 가능한 상태의 원소들 (조건은 만족했지만 아직 클릭 안 함)
